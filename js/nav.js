@@ -46,15 +46,3 @@ function navSubmitStory() {
 }
 
 $navSubmitStory.on('click', navSubmitStory);
-
-
-/**
- * Helper function to reset form values after submitting a story.
- */
-function storyFormReset() {
-  console.debug('storyFormReset');
-
-  $storyInputTitle.val('');
-  $storyInputAuthor.val('');
-  $storyInputUrl.val('');
-}

@@ -24,8 +24,8 @@ class Story {
   /** Parses hostname out of URL and returns it. */
 
   getHostName() {
-    const hostName = this.url.split('/')[2];
-    return hostName;
+    const url = new URL(this.url);
+    return url.hostname;
   }
 }
 
@@ -97,12 +97,8 @@ class StoryList {
   const data = await response.json();
 
 
-  const addedStory = new Story({storyId: data.story.storyId,
-                               title: data.story.title,
-                               author: data.story.author,
-                               url: data.story.url,
-                               username: data.story.username,
-                               createdAt: data.story.createdAt});
+  //TODO: can just pass in data
+  const addedStory = new Story(data.story);
 
   return addedStory;
   }

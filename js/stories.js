@@ -66,11 +66,10 @@ async function handleStorySubmit(evt) {
     url: $storyInputUrl.val()
   }
 
-  await storyList.addStory(currentUser, storySubmission);
-  storyList = await StoryList.getStories();
-  putStoriesOnPage();
+  const addedStory = await storyList.addStory(currentUser, storySubmission);
+  $allStoriesList.prepend(generateStoryMarkup(addedStory))
 
-  storyFormReset();
+  $submitStoryForm.trigger('reset');
 }
 
 $submitStoryForm.on('submit', handleStorySubmit)
