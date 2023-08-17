@@ -46,3 +46,9 @@ function navSubmitStory() {
 }
 
 $navSubmitStory.on('click', navSubmitStory);
+
+function navFavorites() {
+  console.debug('navFavorites');
+  hidePageComponents();
+  $favorites.show();
+}
