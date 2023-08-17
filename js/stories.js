@@ -50,3 +50,27 @@ function putStoriesOnPage() {
 
   $allStoriesList.show();
 }
+
+/**
+ * Gets user input from story submission form and creates a new post request to
+ * post story, then gets updated story list and updates
+ * @param {evt} evt
+ */
+async function handleStorySubmit(evt) {
+  console.debug('handleStorySubmit', evt)
+  evt.preventDefault();
+
+  const storySubmission = {
+    title: $storyInputTitle.val(),
+    author: $storyInputAuthor.val(),
+    url: $storyInputUrl.val()
+  }
+
+  await storyList.addStory(currentUser, storySubmission);
+  storyList = await StoryList.getStories();
+  putStoriesOnPage();
+
+  storyFormReset();
+}
+
+$submitStoryForm.on('submit', handleStorySubmit)

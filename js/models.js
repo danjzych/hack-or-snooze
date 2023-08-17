@@ -24,8 +24,8 @@ class Story {
   /** Parses hostname out of URL and returns it. */
 
   getHostName() {
-    // UNIMPLEMENTED: complete this function!
-    return "hostname.com";
+    const hostName = this.url.split('/')[2];
+    return hostName;
   }
 }
 
@@ -45,6 +45,7 @@ class StoryList {
    *  - builds an array of Story instances
    *  - makes a single StoryList instance out of that
    *  - returns the StoryList instance.
+
    */
 
   static async getStories() {
@@ -74,10 +75,11 @@ class StoryList {
    */
 
   async addStory(user, newStory) {
+    console.debug('StoryList.addStory')
 
   //wil use user.loginToken once users is built up
   const requestBody = {
-    token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImRhbmp6eWNoIiwiaWF0IjoxNjkyMjkzMTYxfQ.wz1MIFrztbYhrucpZNIykETGvZnUUvy7rcnlVcQiNhk",
+    token: user.loginToken,
     story: {
       author: newStory.author,
       title: newStory.title,
@@ -94,12 +96,13 @@ class StoryList {
   });
   const data = await response.json();
 
-  const addedStory = new Story(data.story.storyId,
-                               data.story.title,
-                               data.story.author,
-                               data.story.url,
-                               data.story.username,
-                               data.story.createdAt);
+
+  const addedStory = new Story({storyId: data.story.storyId,
+                               title: data.story.title,
+                               author: data.story.author,
+                               url: data.story.url,
+                               username: data.story.username,
+                               createdAt: data.story.createdAt});
 
   return addedStory;
   }

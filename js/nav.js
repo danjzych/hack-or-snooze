@@ -36,3 +36,25 @@ function updateNavOnLogin() {
   $navLogOut.show();
   $navUserProfile.text(`${currentUser.username}`).show();
 }
+
+/**
+ * Show story submission form when "submit" is clicked in header.
+ */
+function navSubmitStory() {
+  console.debug('navSubmissionStory');
+  $submitStoryForm.show();
+}
+
+$navSubmitStory.on('click', navSubmitStory);
+
+
+/**
+ * Helper function to reset form values after submitting a story.
+ */
+function storyFormReset() {
+  console.debug('storyFormReset');
+
+  $storyInputTitle.val('');
+  $storyInputAuthor.val('');
+  $storyInputUrl.val('');
+}
