@@ -77,30 +77,29 @@ class StoryList {
   async addStory(user, newStory) {
     console.debug('StoryList.addStory')
 
-  //wil use user.loginToken once users is built up
-  const requestBody = {
-    token: user.loginToken,
-    story: {
-      author: newStory.author,
-      title: newStory.title,
-      url: newStory.url
+    const requestBody = {
+      token: user.loginToken,
+      story: {
+        author: newStory.author,
+        title: newStory.title,
+        url: newStory.url
+      }
     }
-  }
 
-  const response = await fetch(`${BASE_URL}/stories`, {
-    method: "POST",
-    body: JSON.stringify(requestBody),
-    headers: {
-      "Content-Type": "application/json"
-    }
-  });
-  const data = await response.json();
+    const response = await fetch(`${BASE_URL}/stories`, {
+      method: "POST",
+      body: JSON.stringify(requestBody),
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+    const data = await response.json();
 
 
-  //TODO: can just pass in data
-  const addedStory = new Story(data.story);
+    //TODO: can just pass in data
+    const addedStory = new Story(data.story);
 
-  return addedStory;
+    return addedStory;
   }
 }
 
@@ -225,5 +224,50 @@ class User {
       console.error("loginViaStoredCredentials failed", err);
       return null;
     }
+  }
+
+
+  /**
+   * Adds a story to user's instance's favorites, and makes PUT request
+   * to remove story.
+   * @param {object} story
+   */
+  async addFavorite(story) {
+    console.debug('user.addFavorite', story.title)
+
+    const requestBody = {
+      token: this.loginToken
+    }
+
+    await fetch(`${BASE_URL}/users/${this.username}/favorites/${story.storyId}`,
+      {
+        method: "POST",
+        body: JSON.stringify(requestBody),
+      }
+    );
+
+    this.favorites.push(story);
+  }
+
+  /**
+   * Removes a story from user instance's favorites and makes DELETE request to
+   * remove favorite.
+   * @param {object} story
+   */
+  async removeFavorite(story) {
+    console.debug('user.removeFavorite', story.title)
+
+    const requestBody = {
+      token: this.loginToken
+    }
+
+    await fetch(`${BASE_URL}/users/${this.username}/favorites/${story.storyId}`,
+      {
+        method: "DELETE",
+        body: JSON.stringify(requestBody),
+      }
+    );
+
+    this.favorites = this.favorites.filter(favorite => favorite.storyId !== story.storyId);
   }
 }
