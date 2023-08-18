@@ -27,7 +27,7 @@ function generateStoryMarkup(story) {
   return $(`
       <li id="${story.storyId}">
         <span class="star">
-          <i class="bi ${isFavorite(story.storyId) ? 'bi-star-fill' : 'bi-star'}"></i>
+          <i class="bi ${currentUser.isFavorite(story.storyId) ? 'bi-star-fill' : 'bi-star'}"></i>
         </span>
         <a href="${story.url}" target="a_blank" class="story-link">
           ${story.title}
@@ -93,13 +93,6 @@ function putFavoritesOnPage() {
     $favorites.append($favoriteStory);
   };
 }
-
-
-/**
- * Conductor function to create li elements for favorites page, show favorites
- * section, and add event listeners to favorites buttons once they are drawn.
- */
-// function handleShowFavorites() {
 //   // putFavoritesOnPage();
 //   navFavorites();
 //   addFavoriteEventListeners();
@@ -125,66 +118,49 @@ function toggleFavoriteColor(star) {
 }
 
 /**
- * This function determines if a story has been favorited and returns a boolean.
- * @param {*} storyId
- * @returns {boolean}
- */
-function isFavorite(storyId) {
-  for (let favorite of currentUser.favorites) {
-    if (favorite.storyId === storyId) {
-      return true;
-    };
-  };
-  return false;
-}
-
-/**
- * Takes the storyId of the story being favorited, finds that story object in
- * storyList and adds that story to the user's favorites, as well as prepends it
- * to the favorites list in the DOM.
+ * If story is being favorited, appends story li to the favorites section. If
+ * being removed from favorites, removed story li from favorites, but not main
+ * story list.
+ * @param {object} story
+ * @param {boolean} favorited
  * @param {string} storyId
  */
-async function addFavoriteStory(storyId) {
-  console.debug('addFavoriteStory');
-
-  //taking the -unique- storyId of the li story item that was clicked, and
-  //searching through the storyList to find instance of Story with that storyId
-  let favoritedStory;
-  for (let story of storyList.stories) {
-    if (story.storyId === storyId) {
-      favoritedStory = story;
-    };
-  };
-
-  await currentUser.addFavorite(favoritedStory);
-  $favorites.prepend(generateStoryMarkup(favoritedStory));
-  console.debug('story favorited');
+function addOrRemoveFavoriteLiItems(story, favorited, storyId) {
+  if (favorited) {
+    $favorites.prepend(generateStoryMarkup(story))
+  } else {
+    $favorites.children(`#${storyId}`).remove();
+  }
 }
 
 
 /**
- * Takes the storyId of the story being unfavorited, finds that story object in
- * currentUser's favorites and removes, and then removes from DOM list of favorites.
+ * Finds story/favorite and adds or removes the story or favorite from user's
+ * favorite list and DOM accordingly.
  * @param {string} storyId
- * @param {object} favoriteLi
+ * @param {boolean} favorited
  */
-async function removeFavoriteStory(storyId, favoriteLi) {
-  console.debug('removeFavoriteStory');
+async function addOrRemoveFavoriteStory(storyId, favorited) {
+  console.debug('addOrRemoveFavoriteStory', favorited ? 'added' : 'removed');
 
-  //taking the -unique- storyId of the li story item that was clicked, and
-  //using that id to find corresponding Story instance in currentUser's favs and remove
-  let removedFavorite;
-  for (let favorite of currentUser.favorites) {
-    if (favorite.storyId === storyId) {
-      removedFavorite = favorite;
-    };
-  };
+  let selectedStory;
+  if (favorited) {
+    for (let story of storyList.stories) {
+      if (story.storyId === storyId) {
+        selectedStory = story;
+      };
+    }
+  } else {
+    for (let favorite of currentUser.favorites) {
+      if (favorite.storyId === storyId) {
+        selectedStory = favorite;
+      };
+    }
+  }
 
-  await currentUser.removeFavorite(removedFavorite);
-  favoriteLi.remove();
-  console.debug('Favorite Removed');
+  await currentUser.addOrRemoveFavorite(selectedStory, favorited);
+  addOrRemoveFavoriteLiItems(selectedStory, favorited, storyId);
 }
-
 
 /**
  * Conductor function that handles the that handles the favoriting or unfavoriting
@@ -195,11 +171,10 @@ async function handleFavoriteStory(evt) {
   console.debug('handleFavoriteStory')
 
   const $clickedStar = $(evt.target);
-  const $favoriteLi = $(evt.target).closest('li');
-  const storyId = $favoriteLi.attr('id');
+  const storyId = $(evt.target).closest('li').attr('id');
 
   toggleFavoriteColor($clickedStar);
-  isFavorite(storyId) ? await removeFavoriteStory(storyId, $favoriteLi) : await addFavoriteStory(storyId);
+  await addOrRemoveFavoriteStory(storyId, !currentUser.isFavorite(storyId))
 }
 
 $('.stories-container').on('click', '.star', handleFavoriteStory);

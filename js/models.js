@@ -27,6 +27,11 @@ class Story {
     const url = new URL(this.url);
     return url.hostname;
   }
+
+  //TODO: add deleteStory here?
+  async deleteStory(storyId) {
+
+  }
 }
 
 
@@ -226,49 +231,54 @@ class User {
     }
   }
 
-  //TODO:Could write single method addOrRemoveFavorite that bundles both
-
   /**
-   * Adds a story to user's instance's favorites, and makes PUT request
-   * to remove story.
-   * @param {object} story
-   */
-  async addFavorite(story) {
-    console.debug('user.addFavorite', story.title)
-
-    const requestBody = {
-      token: this.loginToken
-    }
-
-    await fetch(`${BASE_URL}/users/${this.username}/favorites/${story.storyId}`,
-      {
-        method: "POST",
-        body: JSON.stringify(requestBody),
-      }
-    );
-
-    this.favorites.push(story);
+ * Determines if a story has been favorited and returns a boolean.
+ * @param {*} storyId
+ * @returns {boolean}
+ */
+  isFavorite(storyId) {
+    for (let favorite of currentUser.favorites) {
+      if (favorite.storyId === storyId) {
+        return true;
+      };
+    };
+    return false;
   }
-
   /**
-   * Removes a story from user instance's favorites and makes DELETE request to
-   * remove favorite.
+   * Adds or remove stroy from user's favorites, based on the method past in as
+   * second argument.
    * @param {object} story
+   * @param {string} method
    */
-  async removeFavorite(story) {
-    console.debug('user.removeFavorite', story.title)
+  async addOrRemoveFavorite(story, favorited) {
+    console.debug(favorited ? 'Favorited:' : 'Unfavorited:', story.title);
 
+    const endpoint = `${BASE_URL}/users/${this.username}/favorites/${story.storyId}`;
     const requestBody = {
       token: this.loginToken
-    }
+    };
 
-    await fetch(`${BASE_URL}/users/${this.username}/favorites/${story.storyId}`,
+    //check for 200 code
+    const response = await fetch(endpoint,
       {
-        method: "DELETE",
+        method: favorited ? 'POST' : 'DELETE',
         body: JSON.stringify(requestBody),
+        headers: {
+          "Content-Type": "application/json",
+        }
       }
     );
 
-    this.favorites = this.favorites.filter(favorite => favorite.storyId !== story.storyId);
+    if (response.status !== 200) {
+      throw new Error(`
+        Unable to add or remove favorite, see response code: ${response.status}.
+      `)
+    }
+
+    if (favorited) {
+      this.favorites.push(story);
+    } else {
+      this.favorites = this.favorites.filter(favorite => favorite.storyId !== story.storyId);
+    }
   }
 }
