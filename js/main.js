@@ -43,7 +43,7 @@ function hidePageComponents() {
 
 function addFavoriteEventListeners() {
   $favoriteStars = $('.star');
-  $favoriteStars.on('click', toggleFavorite)
+  $favoriteStars.on('click', handleFavoriteStory)
 }
 
 /** Overall function to kick off the app. */

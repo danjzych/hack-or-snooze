@@ -23,17 +23,17 @@ function generateStoryMarkup(story) {
   // console.debug("generateStoryMarkup", story);
 
   const hostName = story.getHostName();
-  let isFavorite;
-  for (let favorite of currentUser.favorites) {
-    if (favorite.storyId === story.storyId) {
-      isFavorite = true;
-    };
-  };
+  // let isFavorite;
+  // for (let favorite of currentUser.favorites) {
+  //   if (favorite.storyId === story.storyId) {
+  //     isFavorite = true;
+  //   };
+  // };
 
   return $(`
       <li id="${story.storyId}">
         <span class="star">
-          <i class="bi ${isFavorite ? 'bi-star-fill' : 'bi-star'}"></i>
+          <i class="bi ${isFavorite(story.storyId) ? 'bi-star-fill' : 'bi-star'}"></i>
         </span>
         <a href="${story.url}" target="a_blank" class="story-link">
           ${story.title}
@@ -117,16 +117,82 @@ $navFavorites.on('click', handleShowFavorites);
  * Toggles color of star icon when clicked.
  * @param {evt} evt
  */
-function toggleFavorite(evt) {
-  console.debug('toggleFavorite')
-  const clickedStar = $(evt.target);
+function toggleFavoriteColor(star) {
+  console.debug('toggleFavoriteColor')
 
-  if (clickedStar.hasClass('bi-star-fill')) {
-    clickedStar.removeClass('bi-star-fill');
-    clickedStar.addClass('bi-star');
+  if (star.hasClass('bi-star-fill')) {
+    star.removeClass('bi-star-fill');
+    star.addClass('bi-star');
   } else {
-    clickedStar.removeClass('bi-star');
-    clickedStar.addClass('bi-star-fill');
+    star.removeClass('bi-star');
+    star.addClass('bi-star-fill');
   }
 }
 
+/**
+ * This function determines has been favorited and returns a boolean.
+ * @param {*} storyId
+ * @returns
+ */
+function isFavorite(storyId) {
+  for (let favorite of currentUser.favorites) {
+    if (favorite.storyId === storyId) {
+      return true;
+    };
+  };
+  return false;
+}
+
+/**
+ * Takes the storyId of the story being favorited, finds that story object in
+ * storyList and adds that story to the user's favorites.
+ * @param {string} storyId
+ */
+async function addFavoriteStory(storyId) {
+  console.debug('addFavoriteStory');
+
+  let favoritedStory;
+  for (let story of storyList.stories) {
+    if (story.storyId === storyId) {
+      favoritedStory = story;
+      console.debug('story favorited');
+    };
+  };
+
+  await currentUser.addFavorite(favoritedStory);
+}
+
+
+/**
+ * Takes the storyId of the story being unfavorited, finds that story object in
+ * currentUser's favorites and removes.
+ * @param {string} storyId
+ */
+async function removeFavoriteStory(storyId) {
+  console.debug('removeFavoriteStory');
+
+  let removedFavorite;
+  for (let favorite of currentUser.favorites) {
+    if (favorite.storyId === storyId) {
+      removedFavorite = favorite;
+      console.debug('Favorite Removed')
+    };
+  };
+
+  await currentUser.removeFavorite(removedFavorite);
+  // $(`#${storyId}`).remove();
+  // $('li').remove(`#${storyId}`);
+  //TODO: Remove from ONLY the favorites section and not the main section, which removes event listener
+}
+
+
+async function handleFavoriteStory(evt) {
+  const $clickedStar = $(evt.target);
+
+  const storyId = $(evt.target).closest('li').attr('id');
+
+  toggleFavoriteColor($clickedStar);
+  // await removeFavoriteStory(storyId);
+
+  isFavorite(storyId) ? await removeFavoriteStory(storyId) : await addFavoriteStory(storyId);
+}
