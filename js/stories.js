@@ -23,10 +23,17 @@ function generateStoryMarkup(story) {
   // console.debug("generateStoryMarkup", story);
 
   const hostName = story.getHostName();
+  let isFavorite;
+  for (let favorite of currentUser.favorites) {
+    if (favorite.storyId === story.storyId) {
+      isFavorite = true;
+    };
+  };
+
   return $(`
       <li id="${story.storyId}">
         <span class="star">
-          <i class="bi bi-star"></i>
+          <i class="bi ${isFavorite ? 'bi-star-fill' : 'bi-star'}"></i>
         </span>
         <a href="${story.url}" target="a_blank" class="story-link">
           ${story.title}
@@ -78,6 +85,9 @@ async function handleStorySubmit(evt) {
 $submitStoryForm.on('submit', handleStorySubmit);
 
 
+/**
+ * Puts users favorites on the page when "favorites" is clicked in the nav.
+ */
 function putFavoritesOnPage() {
   console.debug('putFavoritesOnPage');
 
@@ -86,10 +96,37 @@ function putFavoritesOnPage() {
   for (let favorite of currentUser.favorites) {
     const $favoriteStory = generateStoryMarkup(favorite);
     $favorites.append($favoriteStory);
-  }
-
-  navFavorites();
+  };
 }
 
 
-$navFavorites.on('click', putFavoritesOnPage)
+/**
+ * Conductor function to create li elements for favorites page, show favorites
+ * section, and add event listeners to favorites buttons once they are drawn.
+ */
+function handleShowFavorites() {
+  putFavoritesOnPage();
+  navFavorites();
+  addFavoriteEventListeners();
+}
+
+$navFavorites.on('click', handleShowFavorites);
+
+
+/**
+ * Toggles color of star icon when clicked.
+ * @param {evt} evt
+ */
+function toggleFavorite(evt) {
+  console.debug('toggleFavorite')
+  const clickedStar = $(evt.target);
+
+  if (clickedStar.hasClass('bi-star-fill')) {
+    clickedStar.removeClass('bi-star-fill');
+    clickedStar.addClass('bi-star');
+  } else {
+    clickedStar.removeClass('bi-star');
+    clickedStar.addClass('bi-star-fill');
+  }
+}
+
