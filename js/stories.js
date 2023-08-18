@@ -25,7 +25,7 @@ function generateStoryMarkup(story) {
   const hostName = story.getHostName();
 
   return $(`
-      <li id="${story.storyId}">
+      <li id="${story.storyId}" class='story'>
         <span class="star">
           <i class="bi ${currentUser.isFavorite(story.storyId) ? 'bi-star-fill' : 'bi-star'}"></i>
         </span>
@@ -35,6 +35,7 @@ function generateStoryMarkup(story) {
         <small class="story-hostname">(${hostName})</small>
         <small class="story-author">by ${story.author}</small>
         <small class="story-user">posted by ${story.username}</small>
+        <i class="bi bi-trash3-fill"></i>
       </li>
     `);
 }
@@ -71,7 +72,8 @@ async function handleStorySubmit(evt) {
   }
 
   const addedStory = await storyList.addStory(currentUser, storySubmission);
-  $allStoriesList.prepend(generateStoryMarkup(addedStory))
+  storyList.stories.unshift(addedStory);
+  $allStoriesList.prepend(generateStoryMarkup(addedStory));
 
   $submitStoryForm.trigger('reset');
 }
@@ -178,3 +180,21 @@ async function handleFavoriteStory(evt) {
 }
 
 $('.stories-container').on('click', '.star', handleFavoriteStory);
+
+
+/**
+ * Handles deletion of story, makes DELETE request to API, filters
+ * storyList.stories and removes that story from the DOM.
+ * @param {evt} evt
+ */
+async function handleStoryDeletion(evt) {
+  console.debug('handleStoryDeletion');
+
+  const storyId = $(evt.target).closest('li').attr('id');
+  Story.deleteStory(storyId);
+  $('li').remove(`#${storyId}`);
+
+  storyList.stories = storyList.stories.filter(s => s.storyId !== storyId);
+}
+
+$('.stories-container').on('click', '.bi-trash3-fill', handleStoryDeletion);

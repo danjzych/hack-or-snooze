@@ -28,8 +28,25 @@ class Story {
     return url.hostname;
   }
 
-  //TODO: add deleteStory here?
-  async deleteStory(storyId) {
+
+  static async deleteStory(storyId) {
+    console.debug('deleteStory')
+    const requestBody = {
+      token: currentUser.loginToken,
+    };
+
+    const response = await fetch (`https://hack-or-snooze-v3.herokuapp.com/stories/${storyId}`,
+      {
+        method: 'DELETE',
+        body: JSON.stringify(requestBody),
+        headers: {
+          "Content-Type": "application/json",
+        }
+      }
+    );
+    const data = await response.json()
+
+    console.debug(data.message || data.error.message)
 
   }
 }
@@ -258,7 +275,6 @@ class User {
       token: this.loginToken
     };
 
-    //check for 200 code
     const response = await fetch(endpoint,
       {
         method: favorited ? 'POST' : 'DELETE',
