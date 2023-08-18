@@ -47,8 +47,14 @@ function navSubmitStory() {
 
 $navSubmitStory.on('click', navSubmitStory);
 
+
+/**
+ * Shows favorites section when clicked in nav, and hides other components.
+ */
 function navFavorites() {
   console.debug('navFavorites');
   hidePageComponents();
   $favorites.show();
 }
+
+$navFavorites.on('click', navFavorites);
