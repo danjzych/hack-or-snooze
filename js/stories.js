@@ -148,7 +148,7 @@ async function addFavoriteStory(storyId) {
   console.debug('addFavoriteStory');
 
   //taking the -unique- storyId of the li story item that was clicked, and
-  //searching through the storyList
+  //searching through the storyList to find instance of Story with that storyId
   let favoritedStory;
   for (let story of storyList.stories) {
     if (story.storyId === storyId) {
@@ -166,11 +166,13 @@ async function addFavoriteStory(storyId) {
  * Takes the storyId of the story being unfavorited, finds that story object in
  * currentUser's favorites and removes, and then removes from DOM list of favorites.
  * @param {string} storyId
- * @param {object} favoriteLi;
+ * @param {object} favoriteLi
  */
 async function removeFavoriteStory(storyId, favoriteLi) {
   console.debug('removeFavoriteStory');
 
+  //taking the -unique- storyId of the li story item that was clicked, and
+  //using that id to find corresponding Story instance in currentUser's favs and remove
   let removedFavorite;
   for (let favorite of currentUser.favorites) {
     if (favorite.storyId === storyId) {

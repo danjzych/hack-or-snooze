@@ -226,6 +226,7 @@ class User {
     }
   }
 
+  //TODO:Could write single method addOrRemoveFavorite that bundles both
 
   /**
    * Adds a story to user's instance's favorites, and makes PUT request
