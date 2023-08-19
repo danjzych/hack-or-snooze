@@ -120,6 +120,7 @@ class StoryList {
 
     //TODO: can just pass in data
     const addedStory = new Story(data.story);
+    this.stories.unshift(addedStory);
 
     return addedStory;
   }

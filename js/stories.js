@@ -72,7 +72,7 @@ async function handleStorySubmit(evt) {
   }
 
   const addedStory = await storyList.addStory(currentUser, storySubmission);
-  storyList.stories.unshift(addedStory);
+  // storyList.stories.unshift(addedStory); //this should probably be in class using 'this'
   $allStoriesList.prepend(generateStoryMarkup(addedStory));
 
   $submitStoryForm.trigger('reset');
